@@ -1,11 +1,12 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
-import { walls } from './House';
-import { Paves } from './Pave';
-
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const scene = new THREE.Scene();
+const textureLoader = new THREE.TextureLoader();
+const objLoader = new GLTFLoader();
+
 scene.background = new THREE.Color(0x0b0b1c);
 			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 			
@@ -34,53 +35,53 @@ scene.background = new THREE.Color(0x0b0b1c);
             light.intensity = 0.4;
             scene.add(light);
             
-            //Toilet
-            const cubeGeometry = new THREE.BoxGeometry(0.8, 0.7, 1.2);
-            const cubeMaterial = new THREE.MeshPhongMaterial({ color: 'grey'});
-            const cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial);
-            cubeMesh.position.set(-1, 0.63, -4);
-            
-            scene.add(cubeMesh);
-
-            //Ceptic    
-            const cube = new THREE.BoxGeometry(1.4, 0.1, 1);
-            const Material = new THREE.MeshPhongMaterial({ color: 'grey'});
-            const Mesh = new THREE.Mesh(cube, Material);
-            Mesh.position.set(4, 0.07, -4.3);
-            scene.add(Mesh);
-
-            //Just another object    
-            const sphereGeometry = new THREE.SphereGeometry(0.5, 16, 16);
-            const sphereMaterial = new THREE.MeshPhongMaterial({ color: 0x544d46 });
-            const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial);
-            sphereMesh.position.set(-4, 0.5, -4);
-            scene.add(sphereMesh);
-            
-            //Outside Tank
-            const cylinderGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 16);
-            const cylinderMaterial = new THREE.MeshPhongMaterial({ color: 0x242440 });
-            const ShadowMaterial = new THREE.ShadowMaterial();
-            const cylinderMesh = new THREE.Mesh(cylinderGeometry, cylinderMaterial,ShadowMaterial);
-            cylinderMesh.position.set(-6, 0.5, 4);
-            scene.add(cylinderMesh);
-
-             
+   
             //Ground Plane
-            const PlaneGeometry = new THREE.PlaneGeometry( 12, 12,1 );
-            cubeGeometry.rotateX( - Math.PI / 2 );
-
-            cubeMaterial.opacity = 0.2;
-           
-            const PlaneMaterial = new THREE.MeshPhongMaterial( {color: 0x1c1c1f, side: THREE.DoubleSide} );
+            const PlaneGeometry = new THREE.PlaneGeometry( 15, 15, 2);
+            
+            const ground = textureLoader.load('./pavement.jpg')
+            const PlaneMaterial = new THREE.MeshPhongMaterial( {color: 0x141617, side: THREE.DoubleSide} );
 
             const plane = new THREE.Mesh( PlaneGeometry, PlaneMaterial );
             plane.position.y = 0;
             plane.receiveShadow = true;
             plane.rotation.x = Math.PI / 2;
             scene.add( plane );
-            
+
+            //URLS FOR MODELS
+            const houseURL = new URL('./house.glb', import.meta.url);
+            const carURL = new URL('./free_porsche_911_carrera_4s.glb', import.meta.url);
+            const manURL = new URL('./man.glb', import.meta.url);
+
+            //LOADING HOUSE MODEL
+            objLoader.load(houseURL.href, function (houseObject) {
+              houseObject.scene.position.set(0, -0.05, -2);
+              houseObject.scene.scale.set(0.6, 0.6, 0.6);
+              scene.add(houseObject.scene);
+            }, undefined, function (error) {
+              console.error(error);
+            });
+
+            //LOADING CAR MODEL
+            objLoader.load(carURL.href, function (carObject) {
+              carObject.scene.position.set(1, 0.55, 3);
+              carObject.scene.scale.set(0.8, 0.8, 0.8);
+              scene.add(carObject.scene);
+            }, undefined, function (error) {
+              console.error(error);
+            });
+
+            //LOADING MAN MODEL
+            objLoader.load(manURL.href, function (manObject) {
+              manObject.scene.position.set(-0.01, 0.055, 3);
+              manObject.scene.scale.set(0.006, 0.006, 0.006);
+              scene.add(manObject.scene);
+            }, undefined, function (error) {
+              console.error(error);
+            });
             //Green Grass ground 
-            const Ground = new THREE.BoxGeometry(10, 0.05, 10);
+            const grass = textureLoader.load('./Grass.jpg')
+            const Ground = new THREE.BoxGeometry(12, 0.05, 12);
             const GMaterial = new THREE.MeshPhongMaterial({ color: 0x0c5409});
             const GMesh = new THREE.Mesh(Ground, GMaterial);
 
@@ -89,17 +90,16 @@ scene.background = new THREE.Color(0x0b0b1c);
             GMesh.receiveShadow = true;
             scene.add(GMesh);
 
-           cubeMesh.translateX(5);
-           cylinderMesh.translateX(2);
-
-           const geometry = new THREE.ConeGeometry( 8.5, 3, 4 ); 
+          
+          //SOIL
+          const soil = textureLoader.load('./soil.jpg')
+           const geometry = new THREE.ConeGeometry( 10.5, 3, 4 ); 
            const material = new THREE.MeshBasicMaterial( {color: 0x40270a} );
            const cone = new THREE.Mesh(geometry, material ); 
            cone.rotation.x = Math.PI;
            cone.rotation.y = 2.3575;
            cone.position.y =-1.51;
            scene.add( cone );
-
 
            //Add lighting to the scene
             var light2 = new THREE.AmbientLight(0xffffff, 0.5);
@@ -115,8 +115,6 @@ scene.background = new THREE.Color(0x0b0b1c);
             d2.shadow.camera.near = 0.5;
             d2.shadow.camera.far = 500;
 
-
-            cubeGeometry.castShadow = true;
             plane.receiveShadow = true;
     
 			camera.position.z = 10;
@@ -158,11 +156,12 @@ scene.background = new THREE.Color(0x0b0b1c);
 				requestAnimationFrame( animate );
 				
 				renderer.render( scene, camera );
+       
 			}
            
 			animate();
-            scene.add(walls());//Fectching the House to the scene
-            scene.add(Paves());//Fectching the Paves to the scene
+          
+          
 
 
 

@@ -17,3 +17,5 @@ node_modules/.bin/js-yaml.cmd
 node_modules/.bin/js-yaml.ps1
 node_modules/.bin/json5
 node_modules/.bin/json5.cmd
+src/House.js
+src/House.js
